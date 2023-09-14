@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inventory Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+        }
+        #container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #7f56e9;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #ff0404;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-top: 10px;
+            color: #ff0404;
+        }
+        input[type="text"], select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            color: #ff0404;
+        }
+        button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        p#result {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .inventory-list {
+            margin-top: 20px;
+            border-top: 1px solid #ccc;
+            padding-top: 20px;
+            color: #ff0404;
+        }
+        .inventory-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #ff0404;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Inventory Management System</h1>
+        <label for="itemName">Item Name:</label>
+        <input type="text" id="itemName" placeholder="Enter item name">
+        <label for="itemQuantity">Quantity:</label>
+        <input type="text" id="itemQuantity" placeholder="Enter quantity">
+        <select id="action">
+            <option value="add">Add Item</option>
+            <option value="remove">Remove Item</option>
+            <option value="view">View Inventory</option>
+        </select>
+        <button onclick="performAction()">Perform Action</button>
+        <p id="result"></p>
+        <div class="inventory-list" id="inventoryList">
+            <!-- Inventory items will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+        class InventoryManager {
+            constructor() {
+                this.inventory = new Map();
+            }
+
+            addItem(itemName, quantity) {
+                if (!this.inventory.has(itemName)) {
+                    this.inventory.set(itemName, 0);
+                }
+
+                this.inventory.set(itemName, this.inventory.get(itemName) + quantity);
+            }
+
+            removeItem(itemName, quantity) {
+                if (this.inventory.has(itemName)) {
+                    const currentQuantity = this.inventory.get(itemName);
+
+                    if (currentQuantity >= quantity) {
+                        this.inventory.set(itemName, currentQuantity - quantity);
+                    } else {
+                        throw new Error('Insufficient quantity in inventory.');
+                    }
+                } else {
+                    throw new Error('Item not found in inventory.');
+                }
+            }
+
+            viewInventory() {
+                return Array.from(this.inventory.entries());
+            }
+        }
+
+        const manager = new InventoryManager();
+
+        function performAction() {
+            const action = document.getElementById('action').value;
+            const itemName = document.getElementById('itemName').value;
+            const itemQuantity = parseInt(document.getElementById('itemQuantity').value);
+            const resultElement = document.getElementById('result');
+
+            switch (action) {
+                case 'add':
+                    try {
+                        manager.addItem(itemName, itemQuantity);
+                        resultElement.innerText = `Added ${itemQuantity} ${itemName}(s) to inventory.`;
+                    } catch (error) {
+                        resultElement.innerText = `Error: ${error.message}`;
+                    }
+                    break;
+                case 'remove':
+                    try {
+                        manager.removeItem(itemName, itemQuantity);
+                        resultElement.innerText = `Removed ${itemQuantity} ${itemName}(s) from inventory.`;
+                    } catch (error) {
+                        resultElement.innerText = `Error: ${error.message}`;
+                    }
+                    break;
+                case 'view':
+                    const inventoryEntries = manager.viewInventory();
+                    resultElement.innerText = 'Inventory:\n';
+
+                    for (const [itemName, quantity] of inventoryEntries) {
+                        resultElement.innerText += `${itemName}: ${quantity}\n`;
+                    }
+                    break;
+                default:
+                    resultElement.innerText = 'Invalid action selected.';
+            }
+        }
+    </script>
+</body>
+</html>
